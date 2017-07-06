@@ -1,4 +1,4 @@
-package com.zonsim.experience.widget;
+package com.zonsim.widget.clearedittext;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
