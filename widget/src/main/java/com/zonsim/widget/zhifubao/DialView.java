@@ -14,7 +14,7 @@ import java.util.Date;
 import java.util.Locale;
 
 /**
- * ^-^
+ * 支付宝芝麻信用(350~950)
  * Created by tang-jw on 2017/7/5.
  */
 
@@ -26,16 +26,28 @@ public class DialView extends View {
     private int defaultSize;
     
     /**
+     * 画笔有宽度，距离边界要有一定的距离
+     */
+    private int defaultPadding = 20;
+    
+    
+    /**
      * 外圆矩形
      */
     private RectF mOuterRect;
     private RectF mInnerRect;
     private int radius;
-    private Paint mOuterPaint;
-    private Paint mInnerPaint;
-    private Paint mInnerScalePaint;
-    private Paint mInnerNumPaint;
-    private Paint mInnerBigScalPaint;
+    private Paint mOuterArcPaint;
+    private Paint mInnerArcPaint;
+    private Paint mSmallScalePaint;
+    private Paint mBigSaclePaint;
+    private Paint mInnerBigScalePaint;
+    private float mStartAngle = 165f;
+    private float mSweepAngle = 210f;
+    /**
+     * 圆环间距
+     */
+    private int arcDistance;
     
     
     public DialView(Context context) {
@@ -55,50 +67,44 @@ public class DialView extends View {
     private void init() {
         //默认宽高
         defaultSize = dp2px(250);
+        arcDistance = dp2px(14);
+        
         //外层圆环画笔
-        mOuterPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mOuterPaint.setStrokeWidth(8f);
-        mOuterPaint.setColor(Color.RED);
-        mOuterPaint.setStyle(Paint.Style.STROKE);
-//        mOuterPaint.setAlpha(80);
+        mOuterArcPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mOuterArcPaint.setStrokeWidth(8f);
+        mOuterArcPaint.setColor(Color.BLUE);
+        mOuterArcPaint.setStyle(Paint.Style.STROKE);
+        mOuterArcPaint.setAlpha(80);
         
-        mInnerPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mInnerPaint.setStrokeWidth(24f);
-        mInnerPaint.setColor(Color.RED);
-        mInnerPaint.setStyle(Paint.Style.STROKE);
-//        mInnerPaint.setAlpha(80);
+        mInnerArcPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mInnerArcPaint.setStrokeWidth(24f);
+        mInnerArcPaint.setColor(Color.RED);
+        mInnerArcPaint.setStyle(Paint.Style.STROKE);
+//        mInnerArcPaint.setAlpha(80);
         
         
         //圆环小刻度画笔
-        mInnerScalePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mInnerScalePaint.setStrokeWidth(dp2px(1));
-        mInnerScalePaint.setStyle(Paint.Style.STROKE);
-        mInnerScalePaint.setColor(Color.WHITE);
-        //圆环小刻度画笔
-        mInnerNumPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mInnerNumPaint.setTextSize(30);
-        mInnerNumPaint.setColor(Color.WHITE);
-    
-    
-    
-        mInnerBigScalPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-       
-        mInnerBigScalPaint.setStrokeWidth(dp2px(3));
-        mInnerBigScalPaint.setStyle(Paint.Style.STROKE);
-        mInnerBigScalPaint.setColor(Color.WHITE);
+        mSmallScalePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mSmallScalePaint.setStrokeWidth(dp2px(1));
+        mSmallScalePaint.setStyle(Paint.Style.STROKE);
+        mSmallScalePaint.setColor(Color.WHITE);
+        
+        //圆环大刻度画笔
+        mBigSaclePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mBigSaclePaint.setTextSize(30);
+        mBigSaclePaint.setColor(Color.WHITE);
+        
+        
+        mInnerBigScalePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        
+        mInnerBigScalePaint.setStrokeWidth(dp2px(3));
+        mInnerBigScalePaint.setStyle(Paint.Style.STROKE);
+        mInnerBigScalePaint.setColor(Color.WHITE);
     }
     
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        System.out.println("onMeasure => " + "w: " + widthMeasureSpec + " , h: " + heightMeasureSpec);
-        
-        System.out.println("onMeasure getSuggested => "
-                + "width: " + getSuggestedMinimumWidth()
-                + " , height: " + getSuggestedMinimumHeight());
-        
-        System.out.println("onMeasure ReSize => " + "width: " + getReSize(getSuggestedMinimumWidth(), defaultSize)
-                + " , height: " + getReSize(getSuggestedMinimumHeight(), defaultSize));
         
         setMeasuredDimension(getReSize(widthMeasureSpec, defaultSize),
                 getReSize(heightMeasureSpec, defaultSize));
@@ -107,10 +113,11 @@ public class DialView extends View {
     
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        System.out.println("onSizeChanged => " + "w:" + w + ",h:" + h + ",oldw:" + oldw + ",oldh:" + oldh);
-        radius = w / 2;
-        mOuterRect = new RectF(4, 4, w - 4, h - 4);
-        mInnerRect = new RectF(48, 48, w - 48, h - 48);
+        radius = (w - 50) / 2;
+        //外圆弧的区域，坐标减去defaultPadding
+        mOuterRect = new RectF(defaultPadding, defaultPadding, w - defaultPadding, h - defaultPadding);
+        int delta = defaultPadding + arcDistance;
+        mInnerRect = new RectF(delta, delta, w - delta, w - delta);
     }
     
     @Override
@@ -121,11 +128,11 @@ public class DialView extends View {
     
     @Override
     protected void onDraw(Canvas canvas) {
-        System.out.println("onDraw");
+        super.onDraw(canvas);
         drawOuterCircle(canvas);
         drawInnerCircle(canvas);
         
-        drawInnerScale(canvas);
+        drawSmallScale(canvas);
         drawInnerBigScale(canvas);
         
         drawInnerNum(canvas);
@@ -136,8 +143,8 @@ public class DialView extends View {
         
         canvas.rotate(0, radius, radius);
         
-        int start = (int) (48 - mInnerPaint.getStrokeWidth() + 32);
-        int end = (int) (start + mInnerPaint.getStrokeWidth() + 12);
+        int start = (int) (48 - mInnerArcPaint.getStrokeWidth() + 32);
+        int end = (int) (start + mInnerArcPaint.getStrokeWidth() + 12);
         
         for (int i = 0; i < 12; i++) {
             
@@ -148,9 +155,9 @@ public class DialView extends View {
             } else {
                 text = "" + i;
             }
-            float textLen = mInnerNumPaint.measureText(text);
+            float textLen = mBigSaclePaint.measureText(text);
             
-            canvas.drawText(text, radius - textLen/2, end + 40, mInnerNumPaint);
+            canvas.drawText(text, radius - textLen / 2, end + 40, mBigSaclePaint);
             
             canvas.rotate(30, radius, radius);
         }
@@ -165,12 +172,12 @@ public class DialView extends View {
         
         canvas.rotate(0, radius, radius);
         
-        int start = (int) (48 - mInnerBigScalPaint.getStrokeWidth() + 12);
-        int end = (int) (start + mInnerBigScalPaint.getStrokeWidth() + 12);
+        int start = (int) (48 - mInnerBigScalePaint.getStrokeWidth() + 12);
+        int end = (int) (start + mInnerBigScalePaint.getStrokeWidth() + 12);
         
         for (int i = 0; i < 12; i++) {
             
-            canvas.drawLine(radius, start, radius, end, mInnerBigScalPaint);
+            canvas.drawLine(radius, start, radius, end, mInnerBigScalePaint);
             canvas.rotate(30, radius, radius);
         }
         
@@ -182,27 +189,23 @@ public class DialView extends View {
      *
      * @param canvas
      */
-    private void drawInnerScale(Canvas canvas) {
+    private void drawSmallScale(Canvas canvas) {
         
         canvas.save();
         
         canvas.rotate(0, radius, radius);
         
-        int start = (int) (48 - mInnerPaint.getStrokeWidth() + 12);
-        int end = (int) (start + mInnerPaint.getStrokeWidth());
+        int start = (int) (48 - mInnerArcPaint.getStrokeWidth() + 12);
+        int end = (int) (start + mInnerArcPaint.getStrokeWidth());
         
         for (int i = 0; i < 60; i++) {
             
-            canvas.drawLine(radius, start, radius, end, mInnerScalePaint);
+            canvas.drawLine(radius, start, radius, end, mSmallScalePaint);
             canvas.rotate(6, radius, radius);
         }
         
         canvas.restore();
         
-    }
-    
-    private void drawInnerCircle(Canvas canvas) {
-        canvas.drawArc(mInnerRect, 0f, 360f, false, mInnerPaint);
     }
     
     
@@ -236,8 +239,11 @@ public class DialView extends View {
      * @param canvas
      */
     private void drawOuterCircle(Canvas canvas) {
-        canvas.drawArc(mOuterRect, 0f, 360f, false, mOuterPaint);
-        
+        canvas.drawArc(mOuterRect, mStartAngle, mSweepAngle, false, mOuterArcPaint);
+    }
+    
+    private void drawInnerCircle(Canvas canvas) {
+        canvas.drawArc(mInnerRect, mStartAngle, mSweepAngle, false, mInnerArcPaint);
     }
     
     
