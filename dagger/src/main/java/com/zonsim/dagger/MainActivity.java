@@ -3,6 +3,7 @@ package com.zonsim.dagger;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 
 import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
@@ -32,19 +33,34 @@ public class MainActivity extends AppCompatActivity {
     
     @Inject
     Picasso mPicasso;
-   
+    
+//    @Named("Activity")
+//    @Inject
+//    Context mContext;
+//    
+//    @Named("Application")
+//    @Inject
+//    Context mAppContext;
+    
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        
+
 //        DaggerDaggerAppComponent.builder()
         
-        DaggerDaggerAppComponent.builder()
-//                .daggerAppModule(new DaggerAppModule((DaggerApp) getApplication()))
-                .build().inject(this);
+        DaggerApp.getComponent(this).inject(this);
+
+//        mTodoStorage.saveTodos("哈哈哈哈");
         
-        mTodoStorage.saveTodos("哈哈哈哈");
+//        DaggerContextComponent.builder()
+//                .contextModule(new ContextModule(this))
+//                .build().inject(this);
+        
+    }
+    
+    public void click(View view) {
+        
     }
 }

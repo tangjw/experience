@@ -12,7 +12,11 @@ import dagger.Provides;
 @Module
 public class DataModule {
     
-    static final String PREFS_DEFAULT = "nowdothis";
+    private final String PREFS_DEFAULT;
+    
+    public DataModule(String PREFS_DEFAULT) {
+        this.PREFS_DEFAULT = PREFS_DEFAULT;
+    }
     
     @Provides
     SharedPreferences provideSharedPrefs(Application app) {

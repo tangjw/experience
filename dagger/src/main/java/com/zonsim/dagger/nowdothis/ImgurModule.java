@@ -16,6 +16,7 @@ public class ImgurModule {
     @Provides
     Retrofit provideRetrofit(/*CallAdapter.Factory factory, */OkHttpClient client) {
         return new Retrofit.Builder()
+                .baseUrl("https://api.github.com")
 //                .addCallAdapterFactory(factory)
                 .client(client)
                 .build();

@@ -3,6 +3,8 @@ package com.zonsim.dagger;
 import android.app.Application;
 import android.content.Context;
 
+import com.zonsim.dagger.nowdothis.DataModule;
+
 /**
  * ^-^
  * Created by tang-jw on 2017/8/1.
@@ -19,6 +21,7 @@ public class DaggerApp extends Application {
         
         mComponent = DaggerDaggerAppComponent.builder()
                 .daggerAppModule(new DaggerAppModule(this))
+                .dataModule(new DataModule("prefs"))
                 .build();
         
     }

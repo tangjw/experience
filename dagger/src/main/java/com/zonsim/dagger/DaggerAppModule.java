@@ -2,6 +2,8 @@ package com.zonsim.dagger;
 
 import android.app.Application;
 
+import com.zonsim.dagger.dagger.PerApp;
+
 import dagger.Module;
 import dagger.Provides;
 
@@ -11,18 +13,21 @@ import dagger.Provides;
  */
 
 @Module
-public class DaggerAppModule {
+final class DaggerAppModule {
     
     private DaggerApp mApp;
     
-    public DaggerAppModule(DaggerApp app) {
+    DaggerAppModule(DaggerApp app) {
         mApp = app;
     }
+    
+    @PerApp
     @Provides
     DaggerApp provideDaggerApp() {
         return mApp;
     }
     
+    @PerApp
     @Provides
     Application provideApplication(DaggerApp app) {
         return app;
